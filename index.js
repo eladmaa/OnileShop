@@ -1,4 +1,6 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.17.2/firebase-firebase/app.js';
+import { initializeApp } from 'firebase/app'
+// import { initializeApp } from 'firebase/firestore';
+console.log("HI");
 import {getAuth, onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/9.17.2/firebase-firebase/auth';    
 import {getFirestore, collection, getDocs, getDoc} from 'https://www.gstatic.com/firebasejs/9.17.2/firebase-firebase/firestore';
 
@@ -12,9 +14,9 @@ const firebaseConfig = {
   };
 
   const firebaseApp = initializeApp(firebaseConfig);
-  const auth = getAuth(firebaseApp);
+  const auth = getAuth(firebaseApp, createUserWithEmailAndPassword );
   const db = getFirestore(firebaseApp);
-  const todosCol = collection(db, 'todos');
+  const itemsCol = collection(db, 'Items');
   const snapshot = await getDocs(todosCol); 
 
   onAuthStateChanged(auth, user => {
@@ -25,3 +27,26 @@ const firebaseConfig = {
         console.log('No user');
     }
   })
+  
+  // ***********************************************************************************************
+  async function getItemsToSell(db) {
+    const ItemsCol = collection(db, 'Items');
+    const itemsSnapshot = await getDocs(ItemsCol);
+    const ItemsList = itemsSnapshot.docs.map(doc => doc.data());
+    return ItemsList;
+  }
+  // ***********************************************************************************************
+  let itemsToSell = getItemsToSell(db);
+  console.log(itemsToSell);
+
+  createUserWithEmailAndPassword(auth, email, password)
+  .then((userCredential) => {
+    // Signed in 
+    const user = userCredential.user;
+    // ...
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    // ..
+  });
