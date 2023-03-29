@@ -1,16 +1,12 @@
 {
   "name": "project-online-shop",
   "version": "1.0.0",
-  "description": "",
+  "description": "web course final project",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "firebase": "^9.18.0",
-    "webpack": "^5.76.3"
-  }
+  "author": "Elad Maayan and Netanel Azuvivnpm i firebase",
+  "license": "ISC"
 }
