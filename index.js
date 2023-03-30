@@ -15,7 +15,8 @@ const firebaseConfig = {
     appId: "1:501364232749:web:6b614b7b45d5fe7a5d9ea4"
   };
 
-  let shoppingList = [];
+  let shoppingList = "";
+  var BicyclesList = "";
   const firebaseApp = initializeApp(firebaseConfig);
   const auth = getAuth(firebaseApp, createUserWithEmailAndPassword );
   const db = getFirestore(firebaseApp);
@@ -36,6 +37,9 @@ const firebaseConfig = {
     const ItemsCol = collection(db, 'Items');
     const itemsSnapshot = await getDocs(ItemsCol);
     const ItemsList = itemsSnapshot.docs.map(doc => doc.data());
+    ItemsList.forEach((item) => {
+      BicyclesList += `<li><a href="#">${item.Manufacturer}</a></li>`;
+    })
     return ItemsList;
   }
   // ***********************************************************************************************
@@ -45,7 +49,15 @@ const firebaseConfig = {
   querySnapshot.forEach((doc) => {
   // doc.data() is never undefined for query doc snapshots
   console.log(doc.id, " => ", doc.data());
+
 });
+
+
+
+let manuContainer = document.getElementById("BicyclesList")
+manuContainer.innerHTML = BicyclesList;
+
+
 
   // createUserWithEmailAndPassword(auth, email, password)
   // .then((userCredential) => {
