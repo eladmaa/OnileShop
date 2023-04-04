@@ -1,10 +1,8 @@
-//import { initializeApp } from 'firebase/app'
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js';
-// import { initializeApp } from 'firebase/firestore';
-
 import {getAuth, onAuthStateChanged, createUserWithEmailAndPassword} from 'https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js';    
 import {getFirestore, collection, getDocs, getDoc} from 'https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js';
 
+jQuery.support.cors = true;
 
 const firebaseConfig = {
     apiKey: "AIzaSyABz2XGXSyT5PS5UPqhRa43DpaXAWJRZcM",
@@ -15,6 +13,7 @@ const firebaseConfig = {
     appId: "1:501364232749:web:6b614b7b45d5fe7a5d9ea4"
   };
 
+  let welcome="";
   let shoppingList = "";
   var BicyclesList = "";
   const firebaseApp = initializeApp(firebaseConfig);
@@ -23,12 +22,19 @@ const firebaseConfig = {
   const itemsCol = collection(db, 'Items');
   const snapshot = await getDocs(itemsCol); 
 
+  
   onAuthStateChanged(auth, user => {
     if(user != null){
         console.log('logged in');
+        welcome += `<ul><a href="#">שלום${user.name}</a></ul>`;
+        let userGuest = document.getElementById("TopLine")
+        userGuest.innerHTML += welcome;
     }
     else{
         console.log('No user');
+        welcome += `<ul><a href="login.html">שלום אורח/התחבר</a></ul>`;
+        let userGuest = document.getElementById("TopLine")
+        userGuest.innerHTML += welcome;
     }
   })
   
@@ -37,8 +43,12 @@ const firebaseConfig = {
     const ItemsCol = collection(db, 'Items');
     const itemsSnapshot = await getDocs(ItemsCol);
     const ItemsList = itemsSnapshot.docs.map(doc => doc.data());
+    
     ItemsList.forEach((item) => {
-      BicyclesList += `<li><a href="#">${item.Manufacturer}</a></li>`;
+      if(item.quantityAvailable > 0)
+      {
+        BicyclesList += `<li><a href="#">${item.Manufacturer}</a></li>`;
+      }
     })
     return ItemsList;
   }
