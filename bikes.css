@@ -1,0 +1,13 @@
+.bikeStyle{
+    text-decoration: wavy;
+    text-align: right;
+    text-decoration-color: blueviolet;
+    font-size: 50px;
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: blueviolet;
+}
+
+#addToCart{
+    text-align: right;
+   
+}

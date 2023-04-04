@@ -14,7 +14,6 @@ const firebaseConfig = {
   };
 
   let welcome="";
-  let shoppingList = "";
   var BicyclesList = "";
   const firebaseApp = initializeApp(firebaseConfig);
   const auth = getAuth(firebaseApp, createUserWithEmailAndPassword );
@@ -47,7 +46,7 @@ const firebaseConfig = {
     ItemsList.forEach((item) => {
       if(item.quantityAvailable > 0)
       {
-        BicyclesList += `<li><a href="#">${item.Manufacturer}</a></li>`;
+        BicyclesList += `<li><a href="${item.web}">${item.Manufacturer}</a></li>`;
       }
     })
     return ItemsList;
