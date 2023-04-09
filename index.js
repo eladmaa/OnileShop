@@ -15,6 +15,7 @@ const firebaseConfig = {
 
   let welcome="";
   var BicyclesList = "";
+  var AccessoriesList = "";
   const firebaseApp = initializeApp(firebaseConfig);
   const auth = getAuth(firebaseApp, createUserWithEmailAndPassword );
   const db = getFirestore(firebaseApp);
@@ -52,19 +53,40 @@ const firebaseConfig = {
     return ItemsList;
   }
   // ***********************************************************************************************
-  let itemsToSell = getItemsToSell(db);
-  console.log(itemsToSell.ItemsList);
+  async function getAccessToSell(db) {
+    const ItemsCol2 = collection(db, 'Accessories');
+    const itemsSnapshot2 = await getDocs(ItemsCol2);
+    const ItemsList2 = itemsSnapshot2.docs.map(doc => doc.data());
+    
+    ItemsList2.forEach((item) => {
+      
+        AccessoriesList += `<li><a href="${item.web}">${item.name}</a></li>`;
+      
+    })
+    return ItemsList2;
+  }
+  // ***********************************************************************************************
+  let bikesToSell = getItemsToSell(db);
+  console.log(bikesToSell.ItemsList);
   const querySnapshot = await getDocs(collection(db, "Items"));
   querySnapshot.forEach((doc) => {
   // doc.data() is never undefined for query doc snapshots
   console.log(doc.id, " => ", doc.data());
-
 });
 
+let AccessoriesToSell = getAccessToSell(db);
+console.log(AccessoriesToSell.ItemsList);
+  const querySnapshot2 = await getDocs(collection(db, "Accessories"));
+  querySnapshot2.forEach((doc) => {
+  // doc.data() is never undefined for query doc snapshots
+  console.log(doc.id, " => ", doc.data());
+});
 
 
 let manuContainer = document.getElementById("BicyclesList")
 manuContainer.innerHTML = BicyclesList;
+let AccessoriesManu = document.getElementById("AccessoriesList")
+AccessoriesManu.innerHTML = AccessoriesList;
 
 
 

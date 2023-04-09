@@ -29,7 +29,7 @@ const firebaseConfig = {
     ItemsList = itemsSnapshot.docs.map(doc => doc.data());
   var price=0;
     ItemsList.forEach(element => {
-        if (element.Manufacturer == 'Gravel')
+        if (element.Manufacturer == 'BMX')
         {
             price = element.price;
         }
@@ -47,7 +47,7 @@ async function add_item(){
     console.log("HI THERE")
     var shoppingListItems = collection(db,'shoppingList')
     var data = {
-      itemName: 'Gravel',
+      itemName: 'BMX',
       quantity:1,
     }
 
