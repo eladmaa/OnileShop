@@ -1,3 +1,4 @@
+window.addEventListener("load",loadWindow);
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js';
 import {getAuth, onAuthStateChanged, createUserWithEmailAndPassword} from 'https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js';    
 import {getFirestore, collection, getDocs, getCountFromServer, getDoc} from 'https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js';
@@ -15,29 +16,15 @@ const firebaseConfig = {
 
   let welcome="";
   let cart_count = 0;
+  var itemPrice = 0;
   var BicyclesList = "";
   var AccessoriesList = "";
-  const firebaseApp = initializeApp(firebaseConfig);
-  const auth = getAuth(firebaseApp, createUserWithEmailAndPassword );
-  const db = getFirestore(firebaseApp);
-  const itemsCol = collection(db, 'Items');
-  const snapshot = await getDocs(itemsCol); 
-
+  var firebaseApp;
+  var itemsSnapshot;
+  var ItemsList;
+  var ItemsCol2;
+  var db;
   
-  onAuthStateChanged(auth, user => {
-    if(user != null){
-        console.log('logged in');
-        welcome += `<ul><a href="#">שלום${user.name}</a></ul>`;
-        let userGuest = document.getElementById("TopLine")
-        userGuest.innerHTML += welcome;
-    }
-    else{
-        console.log('No user');
-        welcome += `<ul><a href="login.html">שלום אורח/התחבר</a></ul>`;
-        let userGuest = document.getElementById("TopLine")
-        userGuest.innerHTML += welcome;
-    }
-  })
   
   // ***********************************************************************************************
   async function getItemsToSell(db) {
@@ -51,7 +38,7 @@ const firebaseConfig = {
         BicyclesList += `<li><a href="${item.web}">${item.Manufacturer}</a></li>`;
       }
     })
-    return ItemsList;
+    return BicyclesList;
   }
   // ***********************************************************************************************
   async function getAccessToSell(db) {
@@ -75,7 +62,7 @@ const firebaseConfig = {
     return ret;
   }
   // ***********************************************************************************************
-  let bikesToSell = getItemsToSell(db);
+  
   console.log(bikesToSell.ItemsList);
   const querySnapshot = await getDocs(collection(db, "Items"));
   querySnapshot.forEach((doc) => {
@@ -83,7 +70,8 @@ const firebaseConfig = {
   console.log(doc.id, " => ", doc.data());
 });
 
-let AccessoriesToSell = getAccessToSell(db);
+
+
 console.log(AccessoriesToSell.ItemsList);
   const querySnapshot2 = await getDocs(collection(db, "Accessories"));
   querySnapshot2.forEach((doc) => {
@@ -97,10 +85,8 @@ cart_count = getCartQuantity(db).then((result) => {
 
 
 
-let manuContainer = document.getElementById("BicyclesList")
-manuContainer.innerHTML = BicyclesList;
-let AccessoriesManu = document.getElementById("AccessoriesList")
-AccessoriesManu.innerHTML = AccessoriesList;
+
+
 
 
 
@@ -115,3 +101,72 @@ AccessoriesManu.innerHTML = AccessoriesList;
   //   const errorMessage = error.message;
   //   // ..
   // });
+
+  
+  async function loadWindow(){
+    firebaseApp = initializeApp(firebaseConfig);
+    db = getFirestore(firebaseApp);
+    const ItemsCol = collection(db, 'Items');
+    itemsSnapshot = await getDocs(ItemsCol);
+    ItemsList = itemsSnapshot.docs.map(doc => doc.data());
+    ItemsList.forEach(element => {
+        if (element.Manufacturer == 'ALLEZ')
+        {
+          itemPrice = element.price;
+          var cart = document.getElementById("AddToCart");
+          cart.innerHTML += `<label> price: ${itemPrice} $<\label>`
+        }
+    });
+    let bikesToSell = getItemsToSell(db).then((result) =>{
+        let manuContainer = document.getElementById("BicyclesList")
+        manuContainer.innerHTML = BicyclesList;
+      });
+      let AccessoriesToSell = getAccessToSell(db).then((result) => {
+        let AccessoriesManu = document.getElementById("AccessoriesList")
+        AccessoriesManu.innerHTML = AccessoriesList;
+    });
+    cart_count = getCartQuantity(db).then((result) => {
+    var span = document.getElementById("cart_qnt");
+    span.textContent = '('+result+')';
+    });
+
+}
+    // ***********************************************************************************************
+  
+ 
+    
+
+    let btn_submit = document.getElementById("btn_addToCart")
+    btn_submit.addEventListener("click",add_item);
+
+ 
+async function add_item(){
+    console.log("HI THERE")
+    var shoppingListItems = collection(db,'shoppingList')
+    var data = {
+      itemName: 'ALLEZ',
+      quantity:1,
+      price: itemPrice,
+      photo: itemPhoto,
+    }
+
+    var cart = document.getElementById("AddToCart");
+    cart.innerHTML += `<label> price: ${price} $<\label>`
+
+    let btn_submit = document.getElementById("btn_addToCart")
+    btn_submit.addEventListener("click",add_item);
+
+
+    var shoppingListItems123 = await addDoc(shoppingListItems, data).then((docRef) => {
+      console.log("Document written with ID: ", docRef.id);
+      alert("1 Allez bicycle added to cart")
+      })
+      .catch((error) => {
+      console.error("Error adding document: ", error);
+      });
+    // const res = await setDoc(doc(db, 'shoppingList', 'Gravel'),{
+    //     quantity: 1,
+    //   });
+      
+      console.log('Added item to shopping list: ');
+}

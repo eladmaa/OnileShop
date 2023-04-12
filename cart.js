@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js';
 import {getAuth, onAuthStateChanged, createUserWithEmailAndPassword} from 'https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js';    
-import {getFirestore, collection, getDocs, getCountFromServer, getDoc} from 'https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js';
+import {getFirestore, collection, deleteDoc, getDocs, getCountFromServer, getDoc} from 'https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js';
 
 jQuery.support.cors = true;
 
@@ -14,8 +14,10 @@ const firebaseConfig = {
   };
 
   let welcome="";
+  var ItemsInCart = [];
   let cart_count = 0;
   var BicyclesList = "";
+  var ItemsList = "";
   var AccessoriesList = "";
   const firebaseApp = initializeApp(firebaseConfig);
   const auth = getAuth(firebaseApp, createUserWithEmailAndPassword );
@@ -71,47 +73,91 @@ const firebaseConfig = {
     const ItemsCol = collection(db, 'shoppingList');
     const snapshot = await getCountFromServer(ItemsCol);
     var ret = snapshot.data().count;
-    console.log('count: ', snapshot.data().count);
     return ret;
   }
   // ***********************************************************************************************
   let bikesToSell = getItemsToSell(db);
-  console.log(bikesToSell.ItemsList);
   const querySnapshot = await getDocs(collection(db, "Items"));
   querySnapshot.forEach((doc) => {
-  // doc.data() is never undefined for query doc snapshots
-  console.log(doc.id, " => ", doc.data());
+    console.log(doc.data())
+ 
 });
+//*************************************************************************************************
+async function showItems(db){
+    var ItemsListToShow="";
+    const snapshot = await getDocs(collection(db, "shoppingList"));
+    snapshot.forEach((item) =>{
+        ItemsListToShow += showItem(item.data());
+        ItemsInCart += item;
+    })
+    return ItemsListToShow;
+}
 
 let AccessoriesToSell = getAccessToSell(db);
-console.log(AccessoriesToSell.ItemsList);
   const querySnapshot2 = await getDocs(collection(db, "Accessories"));
   querySnapshot2.forEach((doc) => {
-  // doc.data() is never undefined for query doc snapshots
-  console.log(doc.id, " => ", doc.data());
+ 
 });
 cart_count = getCartQuantity(db).then((result) => {
   var span = document.getElementById("cart_qnt");
   span.textContent = '('+result+')';
 });
+ItemsList =  showItems(db).then((result) =>{
+    let ItemsInCart = document.getElementById("itemsInCart")
+    ItemsInCart.innerHTML = result;
+});
+let po_btn = document.getElementById("purchase").addEventListener("click", updateDB(db));
 
-
+async function updateDB(db){
+  ItemsInCart.forEach((item) =>{
+    deleteItem(item);
+    updateQuantity(item);
+})
+allert("Thank you for you business");
+  allert("Come back soon");
+}
+// *******************************************************************************************
+async function deleteItem(item){
+  await deleteDoc(doc(db,'shoppingList', item));
+}
+async function updateQuantity(item){
+  const querySnapshot = await getDocs(collection(db, "Items"));
+  querySnapshot.forEach((doc) => {
+    if (doc.data().Manufacturer == item.itemName)
+      {
+        doc.data().quantityAvailable--;
+      }
+ 
+});
+}
+// *******************************************************************************************
 
 let manuContainer = document.getElementById("BicyclesList")
 manuContainer.innerHTML = BicyclesList;
 let AccessoriesManu = document.getElementById("AccessoriesList")
 AccessoriesManu.innerHTML = AccessoriesList;
 
-
-
-  // createUserWithEmailAndPassword(auth, email, password)
-  // .then((userCredential) => {
-  //   // Signed in 
-  //   const user = userCredential.user;
-  //   // ...
-  // })
-  // .catch((error) => {
-  //   const errorCode = error.code;
-  //   const errorMessage = error.message;
-  //   // ..
-  // });
+function showItem(item){
+    return '<div class="card rounded-3 mb-4">'+
+                '<div class="card-body p-4">'+
+                  '<div class="row d-flex justify-content-between align-items-center">'+
+                    '<div class="col-md-2 col-lg-2 col-xl-2">'+
+                      '<img '+
+                        `src=${item.photo}`+
+                        'class="img-fluid rounded-3">'+
+                    '</div>'+
+                    '<div class="col-md-3 col-lg-3 col-xl-3">'+
+                      `<p class="lead fw-normal mb-2">${item.itemName}</p>`+
+                    '</div>'+
+                    
+                    '<div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">'+
+                      `<h5 class="mb-0">${item.price}</h5>`+
+                    '</div>'+
+                    '<div class="col-md-1 col-lg-1 col-xl-1 text-end">'+
+                      '<a href="#!" class="text-danger"><i class="fas fa-trash fa-lg"></i></a>'+
+                    '</div>'+
+                  '</div>'+
+                '</div>'+
+              '</div>';
+                    
+}

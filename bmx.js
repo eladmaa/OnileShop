@@ -19,6 +19,8 @@ const firebaseConfig = {
   var itemsSnapshot;
   var ItemsCol
   var ItemsList;
+  var itemPrice=0;
+  var itemPhoto = ""
 
   
   async function loadWindow(){
@@ -27,11 +29,11 @@ const firebaseConfig = {
     ItemsCol = collection(db, 'Items');
     itemsSnapshot = await getDocs(ItemsCol);
     ItemsList = itemsSnapshot.docs.map(doc => doc.data());
-  var price=0;
     ItemsList.forEach(element => {
         if (element.Manufacturer == 'BMX')
         {
-            price = element.price;
+          itemPrice = element.price;
+          itemPhoto = "bmxPhoto.png "
         }
     });
     var cart = document.getElementById("AddToCart");
@@ -49,10 +51,13 @@ async function add_item(){
     var data = {
       itemName: 'BMX',
       quantity:1,
+      price: itemPrice,
+      photo: itemPhoto,
     }
 
     var shoppingListItems123 = await addDoc(shoppingListItems, data).then((docRef) => {
       console.log("Document written with ID: ", docRef.id);
+      alert("1 BMX added to cart")
       })
       .catch((error) => {
       console.error("Error adding document: ", error);

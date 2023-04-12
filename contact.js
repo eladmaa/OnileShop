@@ -41,7 +41,7 @@ async function btnSendClicked(){
         phone_no: phoneNo,
         subject: subjectMsg
       });
-      
+      alert("מכתבך התקבל ברשומות ויועבר לגורם המתאים")
       console.log('Added document: ');
 
 }
