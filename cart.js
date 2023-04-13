@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js';
 import {getAuth, onAuthStateChanged, createUserWithEmailAndPassword} from 'https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js';    
-import {getFirestore, collection, deleteDoc, getDocs, getCountFromServer, getDoc} from 'https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js';
+import {getFirestore, collection, deleteDoc, doc, getDocs, getCountFromServer, getDoc} from 'https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js';
 
 jQuery.support.cors = true;
 
@@ -14,7 +14,7 @@ const firebaseConfig = {
   };
 
   let welcome="";
-  var ItemsInCart = [];
+  var CartItems = "";
   let cart_count = 0;
   var BicyclesList = "";
   var ItemsList = "";
@@ -88,7 +88,7 @@ async function showItems(db){
     const snapshot = await getDocs(collection(db, "shoppingList"));
     snapshot.forEach((item) =>{
         ItemsListToShow += showItem(item.data());
-        ItemsInCart += item;
+        CartItems += item;
     })
     return ItemsListToShow;
 }
@@ -106,27 +106,31 @@ ItemsList =  showItems(db).then((result) =>{
     let ItemsInCart = document.getElementById("itemsInCart")
     ItemsInCart.innerHTML = result;
 });
-let po_btn = document.getElementById("purchase").addEventListener("click", updateDB(db));
+let po_btn = document.getElementById("purchase").addEventListener("click", updateDB);
 
-async function updateDB(db){
-  ItemsInCart.forEach((item) =>{
+async function updateDB(){
+  const snapshot = await getDocs(collection(db, "shoppingList"));
+  snapshot.forEach((item) =>{
     deleteItem(item);
     updateQuantity(item);
 })
-allert("Thank you for you business");
-  allert("Come back soon");
+alert("Thank you for you business\n visit us again soon");
 }
 // *******************************************************************************************
 async function deleteItem(item){
-  await deleteDoc(doc(db,'shoppingList', item));
+  await deleteDoc(doc(db,'shoppingList', item)).then((res)=>{
+    console.log("item:"+item.data()+"was deleted")
+  });
 }
 async function updateQuantity(item){
-  const querySnapshot = await getDocs(collection(db, "Items"));
-  querySnapshot.forEach((doc) => {
-    if (doc.data().Manufacturer == item.itemName)
+  const querySnapshot = await getDocs(collection(db, "Items")).then((res)=>{
+    querySnapshot.forEach((doc) => {
+    if (doc.data().Manufacturer == item.data().itemName)
       {
         doc.data().quantityAvailable--;
       }
+  });
+  
  
 });
 }
@@ -151,7 +155,7 @@ function showItem(item){
                     '</div>'+
                     
                     '<div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">'+
-                      `<h5 class="mb-0">${item.price}</h5>`+
+                      `<h5 class="mb-0">Price:${item.price}$</h5>`+
                     '</div>'+
                     '<div class="col-md-1 col-lg-1 col-xl-1 text-end">'+
                       '<a href="#!" class="text-danger"><i class="fas fa-trash fa-lg"></i></a>'+

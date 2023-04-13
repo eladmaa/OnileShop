@@ -160,6 +160,10 @@ async function add_item(){
     var shoppingListItems123 = await addDoc(shoppingListItems, data).then((docRef) => {
       console.log("Document written with ID: ", docRef.id);
       alert("1 Allez bicycle added to cart")
+      cart_count = getCartQuantity(db).then((result) => {
+        var span = document.getElementById("cart_qnt");
+        span.textContent = '('+result+')';
+        });
       })
       .catch((error) => {
       console.error("Error adding document: ", error);

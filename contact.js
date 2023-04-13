@@ -1,6 +1,14 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js';
 import {getAuth, onAuthStateChanged, createUserWithEmailAndPassword} from 'https://www.gstatic.com/firebasejs/9.17.2/firebase-auth.js';    
-import {getFirestore, collection, doc, setDoc, getDocs, getDoc} from 'https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js';
+import {getFirestore, collection, getDocs, getCountFromServer, getDoc} from 'https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js';
+
+jQuery.support.cors = true;
+
+
+let welcome="";
+let cart_count = 0;
+var BicyclesList = "";
+var AccessoriesList = "";
 
 
 const firebaseConfig = {
@@ -15,6 +23,69 @@ const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp, createUserWithEmailAndPassword );
 const db = getFirestore(firebaseApp);
 
+ 
+  // ***********************************************************************************************
+  async function getItemsToSell(db) {
+    const ItemsCol = collection(db, 'Items');
+    const itemsSnapshot = await getDocs(ItemsCol);
+    const ItemsList = itemsSnapshot.docs.map(doc => doc.data());
+    
+    ItemsList.forEach((item) => {
+      if(item.quantityAvailable > 0)
+      {
+        BicyclesList += `<li><a href="${item.web}">${item.Manufacturer}</a></li>`;
+      }
+    })
+    return ItemsList;
+  }
+  // ***********************************************************************************************
+  async function getAccessToSell(db) {
+    const ItemsCol2 = collection(db, 'Accessories');
+    const itemsSnapshot2 = await getDocs(ItemsCol2);
+    const ItemsList2 = itemsSnapshot2.docs.map(doc => doc.data());
+    
+    ItemsList2.forEach((item) => {
+      
+        AccessoriesList += `<li><a href="${item.web}">${item.name}</a></li>`;
+      
+    })
+    return ItemsList2;
+  }
+  // ***********************************************************************************************
+  async function getCartQuantity(db) {
+    const ItemsCol = collection(db, 'shoppingList');
+    const snapshot = await getCountFromServer(ItemsCol);
+    var ret = snapshot.data().count;
+    console.log('count: ', snapshot.data().count);
+    return ret;
+  }
+  // ***********************************************************************************************
+  let bikesToSell = getItemsToSell(db);
+  console.log(bikesToSell.ItemsList);
+  const querySnapshot = await getDocs(collection(db, "Items"));
+  querySnapshot.forEach((doc) => {
+  // doc.data() is never undefined for query doc snapshots
+  console.log(doc.id, " => ", doc.data());
+});
+
+let AccessoriesToSell = getAccessToSell(db);
+console.log(AccessoriesToSell.ItemsList);
+  const querySnapshot2 = await getDocs(collection(db, "Accessories"));
+  querySnapshot2.forEach((doc) => {
+  // doc.data() is never undefined for query doc snapshots
+  console.log(doc.id, " => ", doc.data());
+});
+cart_count = getCartQuantity(db).then((result) => {
+  var span = document.getElementById("cart_qnt");
+  span.textContent = '('+result+')';
+});
+
+
+
+let manuContainer = document.getElementById("BicyclesList")
+manuContainer.innerHTML = BicyclesList;
+let AccessoriesManu = document.getElementById("AccessoriesList")
+AccessoriesManu.innerHTML = AccessoriesList;
 
 let btnSend = document.getElementById("sendbtn")
 btnSend.addEventListener("click", btnSendClicked);
